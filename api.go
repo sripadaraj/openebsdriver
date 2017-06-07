@@ -1,4 +1,4 @@
-package volumeDriver
+package volume
 
 import (
 	"net/http"
