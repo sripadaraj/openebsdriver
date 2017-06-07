@@ -18,6 +18,8 @@ func NewHandlerFromVolumeDriver(d volume.Driver) *volumeplugin.Handler {
 	return volumeplugin.NewHandler(&openebsDriver{d})
 }
 
+// Create request results in API call to Openebs registry 
+// that creates requested volume if possible.
 func (d *openebsDriver) Create(req volumeplugin.Request) volumeplugin.Response {
 	var res volumeplugin.Response
 	_, err := d.d.Create(req.Name, req.Options)
@@ -27,6 +29,7 @@ func (d *openebsDriver) Create(req volumeplugin.Request) volumeplugin.Response {
 	return res
 }
 
+// List all volumes and their respective mount points.
 func (d *openebsDriver) List(req volumeplugin.Request) volumeplugin.Response {
 	var res volumeplugin.Response
 	ls, err := d.d.List()
@@ -47,6 +50,8 @@ func (d *openebsDriver) List(req volumeplugin.Request) volumeplugin.Response {
 	return res
 }
 
+// Get request the information about specified volume
+// and returns the name, mountpoint & status.
 func (d *openebsDriver) Get(req volumeplugin.Request) volumeplugin.Response {
 	var res volumeplugin.Response
 	v, err := d.d.Get(req.Name)
@@ -62,6 +67,7 @@ func (d *openebsDriver) Get(req volumeplugin.Request) volumeplugin.Response {
 	return res
 }
 
+// Remove is called to delete a volume.
 func (d *openebsDriver) Remove(req volumeplugin.Request) volumeplugin.Response {
 	var res volumeplugin.Response
 	v, err := d.d.Get(req.Name)
@@ -75,6 +81,7 @@ func (d *openebsDriver) Remove(req volumeplugin.Request) volumeplugin.Response {
 	return res
 }
 
+// Path is called to get the path of a volume mounted on the host.
 func (d *openebsDriver) Path(req volumeplugin.Request) volumeplugin.Response {
 	var res volumeplugin.Response
 	v, err := d.d.Get(req.Name)
@@ -86,6 +93,7 @@ func (d *openebsDriver) Path(req volumeplugin.Request) volumeplugin.Response {
 	return res
 }
 
+// Mount bind the volume to a container specified by the Path.
 func (d *openebsDriver) Mount(req volumeplugin.MountRequest) volumeplugin.Response {
 	var res volumeplugin.Response
 	v, err := d.d.Get(req.Name)
@@ -101,6 +109,8 @@ func (d *openebsDriver) Mount(req volumeplugin.MountRequest) volumeplugin.Respon
 	return res
 }
 
+// Unmount is called to stop the container from using the volume
+// and it is probably safe to unmount.
 func (d *openebsDriver) Unmount(req volumeplugin.UnmountRequest) volumeplugin.Response {
 	var res volumeplugin.Response
 	v, err := d.d.Get(req.Name)
@@ -114,6 +124,7 @@ func (d *openebsDriver) Unmount(req volumeplugin.UnmountRequest) volumeplugin.Re
 	return res
 }
 
+// Capabilities indicates if a volume has to be created multiple times or only once.
 func (d *openebsDriver) Capabilities(req volumeplugin.Request) volumeplugin.Response {
 	var res volumeplugin.Response
 	res.Capabilities = volumeplugin.Capability{Scope: d.d.Scope()}
