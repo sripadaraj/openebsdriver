@@ -1,4 +1,4 @@
-package openebs
+package main
 
 import (
 	"github.com/docker/docker/volume"
@@ -12,13 +12,13 @@ type openebsDriver struct {
 // NewHandlerFromVolumeDriver creates a plugin handler from an existing volume
 // driver. This could be used, for instance, by the `local` volume driver built-in
 // to Docker Engine and it would create a plugin from it that maps plugin API calls
-// directly to any volume driver that satifies the volume.Driver interface from
+// directly to any volume driver that satisfies the volume.Driver interface from
 // Docker Engine.
 func NewHandlerFromVolumeDriver(d volume.Driver) *volumeplugin.Handler {
 	return volumeplugin.NewHandler(&openebsDriver{d})
 }
 
-// Create request results in API call to Openebs registry 
+// Create request results in API call to Openebs registry
 // that creates requested volume if possible.
 func (d *openebsDriver) Create(req volumeplugin.Request) volumeplugin.Response {
 	var res volumeplugin.Response
