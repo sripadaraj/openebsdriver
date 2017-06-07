@@ -39,7 +39,7 @@ type UnmountRequest struct {
 	ID   string
 }
 
-// Response is the strucutre that the plugin's responses are serialized to.
+// Response is the structure that the plugin's responses are serialized to.
 type Response struct {
 	Mountpoint   string
 	Err          string
