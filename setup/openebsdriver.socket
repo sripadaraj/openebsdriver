@@ -1,0 +1,9 @@
+[Unit]
+Description=openebsdriver
+
+[Socket]
+ListenStream=/run/docker/plugins/openebsdriver.sock
+
+[Install]
+WantedBy=sockets.target
+
