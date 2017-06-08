@@ -1,0 +1,11 @@
+[Unit]
+Description=openebsdriver
+Before=docker.service
+After=network.target openebsdriver.socket
+Requires=openebsdriver.socket docker.service
+
+[Service]
+ExecStart=/usr/lib/docker/openebsdriver
+
+[Install]
+WantedBy=multi-user.target
