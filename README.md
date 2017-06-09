@@ -11,3 +11,18 @@ VolumeDriver plugins can be used for things like distributed filesystems and sta
 
 
 
+
+======
+OpenEBS Plugin 
+======
+Usage:
+1) Clone this repository
+```
+git clone https://github.com/maheshreddy7797/openebsdriver && cd openebsdriver
+```
+2) Copy nvd.json.example to /etc/nvd/nvd.json and change values according to your NexentaStor setup
+```
+mkdir /etc/openebsdriver
+cp config.json /etc/openebsdriver/config.json
+```
+
