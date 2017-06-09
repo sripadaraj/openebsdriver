@@ -1,6 +1,6 @@
 # OpenEBS Volume Plugin
 
-![Travis Ci](https://travis-ci.org/maheshreddy7797/openebsdriver.svg?branch=master) ![Go Report Card](https://goreportcard.com/badge/github.com/maheshreddy7797/openebsdriver)
+![Travis Ci](https://travis-ci.org/maheshreddy7797/openebsdriver.svg?branch=master) ![Go Report Card](https://goreportcard.com/badge/github.com/maheshreddy7797/openebsdriver)![Go Report](https://codecov.io/gh/maheshreddy7797/openebsdriver)
 
 ## VolumeDriver for Openebs
 
