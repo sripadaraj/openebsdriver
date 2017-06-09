@@ -1,4 +1,4 @@
-package main
+package openebs
 
 import (
 	"github.com/docker/docker/volume"
