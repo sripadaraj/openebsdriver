@@ -10,9 +10,11 @@ VolumeDriver plugins can be used for things like distributed filesystems and sta
 ![A volume response process ](https://github.com/sripadaraj/openebsdriver/blob/master/images/plugin1.jpg)
 
 
-OpenEBS Plugin 
-======================================
 
+
+======
+OpenEBS Plugin 
+======
 Usage:
 1) Clone this repository
 ```
@@ -23,3 +25,4 @@ git clone https://github.com/maheshreddy7797/openebsdriver && cd openebsdriver
 mkdir /etc/openebsdriver
 cp config.json /etc/openebsdriver/config.json
 ```
+
