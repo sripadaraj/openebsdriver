@@ -1,4 +1,4 @@
-# openebsdriver
+# ## OpenEBS Volume Plugin
 ![Go Report Card](https://goreportcard.com/badge/github.com/maheshreddy7797/openebsdriver)
 
 ## VolumeDriver for Openebs
@@ -7,13 +7,11 @@ The VolumeDriver capability basically gives plugins control over the volumes lif
 
 VolumeDriver plugins can be used for things like distributed filesystems and stateful volumes.
 
-![A volume response process ](https://github.com/sripadaraj/openebsdriver/blob/master/images/plugin1.jpg)
 
 
 
 
-======
-OpenEBS Plugin 
+ 
 ======
 Usage:
 1) Clone this repository
