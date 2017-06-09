@@ -1,0 +1,44 @@
+{
+    "description": "openebsdriver",
+    "documentation": "https://github.com/maheshredd7797/openebsdriver/",
+    "entrypoint": ["/bin/openebsdriver", "daemon", "start", "-v", ">", "/etc/openebsdriver.log"],
+    "env": [
+        {
+            "name": "DEBUG",
+            "settable": [
+                "value"
+            ],
+            "value": "0"
+        }
+    ],
+    "interface": {
+        "socket": "openebsdriver.sock",
+        "types": [
+            "docker.volumedriver/1.0"
+        ]
+    },
+    "linux": {
+        "capabilities": [
+            "CAP_SYS_ADMIN"
+        ]
+    },
+    "mounts": [
+        {
+            "destination": "/mnt/state",
+            "source": "/var/lib/docker/plugins/",
+            "options": ["rbind"],
+            "type": "bind"
+        },
+        {
+            "destination": "/etc/openebsdriver/",
+            "options": ["rbind", "rw"],
+            "source": "/usr/lib/docker/openebsdriver",
+            "type": "rbind"
+        }
+
+    ],
+    "network": {
+        "type": "host"
+    },
+    "propagatedmount": "/mnt"
+}
