@@ -7,7 +7,7 @@ The VolumeDriver capability basically gives plugins control over the volumes lif
 
 VolumeDriver plugins can be used for things like distributed filesystems and stateful volumes.
 
-![A volume response process ](https://github.com/sripadaraj/openebsdriver/blob/master/images/plugin1.jpg)
+![A volume response process ](https://github.com/sripadaraj/openebsdriver/blob/master/images/Chart_Docker-Volume-Plugin-Architecture.png)
 
 
 
