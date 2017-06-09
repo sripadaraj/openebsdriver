@@ -1,4 +1,4 @@
-# ## OpenEBS Volume Plugin
+# OpenEBS Volume Plugin
 ![Go Report Card](https://goreportcard.com/badge/github.com/maheshreddy7797/openebsdriver)
 
 ## VolumeDriver for Openebs
