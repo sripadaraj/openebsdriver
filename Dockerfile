@@ -4,6 +4,6 @@ RUN apk update
 
 RUN mkdir -p /run/docker/plugins /mnt/state
 
-COPY bin/nvd /bin/nvd
+COPY bin/openebsdriver /bin/openebsdriver
 
 CMD ["bin/sh"]
