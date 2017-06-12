@@ -1,7 +1,7 @@
 {
-    "description": "openebsdriver",
+    "description": "openEBSdriver",
     "documentation": "https://github.com/maheshredd7797/openebsdriver/",
-    "entrypoint": ["/bin/openebsdriver", "daemon", "start", "-v", ">", "/etc/openebsdriver.log"],
+    "entrypoint": ["/bin/openEBSDriver", "daemon", "start", "-v", ">", "/etc/openEBSDriver.log"],
     "env": [
         {
             "name": "DEBUG",
@@ -12,7 +12,7 @@
         }
     ],
     "interface": {
-        "socket": "openebsdriver.sock",
+        "socket": "openEBSDriver.sock",
         "types": [
             "docker.volumedriver/1.0"
         ]
@@ -30,9 +30,9 @@
             "type": "bind"
         },
         {
-            "destination": "/etc/openebsdriver/",
+            "destination": "/etc/openEBSDriver/",
             "options": ["rbind", "rw"],
-            "source": "/etc/openebsdriver",
+            "source": "/etc/openEBSDriver",
             "type": "rbind"
         }
 
