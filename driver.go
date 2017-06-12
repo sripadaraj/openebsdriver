@@ -1,12 +1,25 @@
-package openebs
+ackage main
 
 import (
-	"github.com/docker/docker/volume"
-	volumeplugin "github.com/docker/go-plugins-helpers/volume"
+	"fmt"
+	"io/ioutil"
+	"log"
+	"os"
+	"path/filepath"
+	"strings"
+	"sync"
+	"time"
+
+	"github.com/docker/go-plugins-helpers/volume"
+	//maya_api "github.com/openebs/maya"
 )
 
-type openebsDriver struct {
-	d volume.Driver
+type openEBSDriver struct {
+	client       *quobyte_api.QuobyteClient
+	quobyteMount string
+	m            *sync.Mutex
+	maxFSChecks  int
+	maxWaitTime  float64
 }
 
 // NewHandlerFromVolumeDriver creates a plugin handler from an existing volume
@@ -14,119 +27,130 @@ type openebsDriver struct {
 // to Docker Engine and it would create a plugin from it that maps plugin API calls
 // directly to any volume driver that satisfies the volume.Driver interface from
 // Docker Engine.
-func NewHandlerFromVolumeDriver(d volume.Driver) *volumeplugin.Handler {
-	return volumeplugin.NewHandler(&openebsDriver{d})
+func newOpenEBSDriver(apiURL string, username string, password string, openEBSMount string, maxFSChecks int, maxWaitTime float64) openEBSDriver {
+	driver := openEBSDriver{
+		client:       maya_api.NewOpenEBSClient(apiURL, username, password),
+		openEBSMount: openEBSMount,
+		m:            &sync.Mutex{},
+		maxFSChecks:  maxFSChecks,
+		maxWaitTime:  maxWaitTime,
+	}
+
+	return driver
 }
 
 // Create request results in API call to Openebs registry
 // that creates requested volume if possible.
-func (d *openebsDriver) Create(req volumeplugin.Request) volumeplugin.Response {
-	var res volumeplugin.Response
-	_, err := d.d.Create(req.Name, req.Options)
-	if err != nil {
-		res.Err = err.Error()
+
+func (driver openEBSDriver) Create(request volume.Request) volume.Response {
+	log.Printf("Creating volume %s\n", request.Name)
+	driver.m.Lock()
+	defer driver.m.Unlock()
+
+	user, group := "root", "root"
+
+	if usr, ok := request.Options["user"]; ok {
+		user = usr
 	}
-	return res
+
+	if grp, ok := request.Options["group"]; ok {
+		group = grp
+	}
+
+	if _, err := driver.client.CreateVolume(&maya_api.CreateVolumeRequest{
+		Name:        request.Name,
+		RootUserID:  user,
+		RootGroupID: group,
+	}); err != nil {
+		log.Println(err)
+
+		if !strings.Contains(err.Error(), "ENTITY_EXISTS_ALREADY/POSIX_ERROR_NONE") {
+			return volume.Response{Err: err.Error()}
+		}
+	}
+
+	mPoint := filepath.Join(driver.openEBSMount, request.Name)
+	log.Printf("Validate mounting volume %s on %s\n", request.Name, mPoint)
+	if err := driver.checkMountPoint(mPoint); err != nil {
+		return volume.Response{Err: err.Error()}
+	}
+
+	return volume.Response{Err: ""}
 }
 
 // List all volumes and their respective mount points.
-func (d *openebsDriver) List(req volumeplugin.Request) volumeplugin.Response {
-	var res volumeplugin.Response
-	ls, err := d.d.List()
+
+func (driver openEBSDriver) List(request volume.Request) volume.Response {
+	driver.m.Lock()
+	defer driver.m.Unlock()
+
+	var vols []*volume.Volume
+	files, err := ioutil.ReadDir(driver.openEBSMount)
 	if err != nil {
-		res.Err = err.Error()
-		return res
+		log.Println(err)
+		return volume.Response{Err: err.Error()}
 	}
-	vols := make([]*volumeplugin.Volume, len(ls))
 
-	for i, v := range ls {
-		vol := &volumeplugin.Volume{
-			Name:       v.Name(),
-			Mountpoint: v.Path(),
+	for _, entry := range files {
+		if entry.IsDir() {
+			vols = append(vols, &volume.Volume{Name: entry.Name(), Mountpoint: filepath.Join(driver.openEBSMount, entry.Name())})
 		}
-		vols[i] = vol
 	}
-	res.Volumes = vols
-	return res
-}
 
+	return volume.Response{Volumes: vols}
+}
 // Get request the information about specified volume
 // and returns the name, mountpoint & status.
-func (d *openebsDriver) Get(req volumeplugin.Request) volumeplugin.Response {
-	var res volumeplugin.Response
-	v, err := d.d.Get(req.Name)
-	if err != nil {
-		res.Err = err.Error()
-		return res
+func (driver openEBSDriver) Get(request volume.Request) volume.Response {
+	driver.m.Lock()
+	defer driver.m.Unlock()
+
+	mPoint := filepath.Join(driver.openEBSMount, request.Name)
+
+	if fi, err := os.Lstat(mPoint); err != nil || !fi.IsDir() {
+		log.Println(err)
+		return volume.Response{Err: fmt.Sprintf("%v not mounted", mPoint)}
 	}
-	res.Volume = &volumeplugin.Volume{
-		Name:       v.Name(),
-		Mountpoint: v.Path(),
-		Status:     v.Status(),
-	}
-	return res
+
+	return volume.Response{Volume: &volume.Volume{Name: request.Name, Mountpoint: mPoint}}
 }
 
 // Remove is called to delete a volume.
-func (d *openebsDriver) Remove(req volumeplugin.Request) volumeplugin.Response {
-	var res volumeplugin.Response
-	v, err := d.d.Get(req.Name)
-	if err != nil {
-		res.Err = err.Error()
-		return res
+func (driver openEBSDriver) Remove(request volume.Request) volume.Response {
+	log.Printf("Removing volume %s\n", request.Name)
+	driver.m.Lock()
+	defer driver.m.Unlock()
+
+	if err := driver.client.DeleteVolumeByName(request.Name, ""); err != nil {
+		log.Println(err)
+		return volume.Response{Err: err.Error()}
 	}
-	if err := d.d.Remove(v); err != nil {
-		res.Err = err.Error()
-	}
-	return res
+
+	return volume.Response{Err: ""}
 }
 
 // Path is called to get the path of a volume mounted on the host.
-func (d *openebsDriver) Path(req volumeplugin.Request) volumeplugin.Response {
-	var res volumeplugin.Response
-	v, err := d.d.Get(req.Name)
-	if err != nil {
-		res.Err = err.Error()
-		return res
-	}
-	res.Mountpoint = v.Path()
-	return res
+
+func (driver openEBSDriver) Path(request volume.Request) volume.Response {
+	return volume.Response{Mountpoint: filepath.Join(driver.openEBSMount, request.Name)}
 }
 
 // Mount bind the volume to a container specified by the Path.
-func (d *openebsDriver) Mount(req volumeplugin.MountRequest) volumeplugin.Response {
-	var res volumeplugin.Response
-	v, err := d.d.Get(req.Name)
-	if err != nil {
-		res.Err = err.Error()
-		return res
-	}
-	pth, err := v.Mount(req.ID)
-	if err != nil {
-		res.Err = err.Error()
-	}
-	res.Mountpoint = pth
-	return res
+func (driver openEBSDriver) Mount(request volume.MountRequest) volume.Response {
+	driver.m.Lock()
+	defer driver.m.Unlock()
+	mPoint := filepath.Join(driver.openEBSMount, request.Name)
+	log.Printf("Mounting volume %s on %s\n", request.Name, mPoint)
+	return volume.Response{Err: "", Mountpoint: mPoint}
 }
 
 // Unmount is called to stop the container from using the volume
 // and it is probably safe to unmount.
-func (d *openebsDriver) Unmount(req volumeplugin.UnmountRequest) volumeplugin.Response {
-	var res volumeplugin.Response
-	v, err := d.d.Get(req.Name)
-	if err != nil {
-		res.Err = err.Error()
-		return res
-	}
-	if err := v.Unmount(req.ID); err != nil {
-		res.Err = err.Error()
-	}
-	return res
+func (driver openEBSDriver) Unmount(request volume.UnmountRequest) volume.Response {
+	return volume.Response{}
 }
 
 // Capabilities indicates if a volume has to be created multiple times or only once.
-func (d *openebsDriver) Capabilities(req volumeplugin.Request) volumeplugin.Response {
-	var res volumeplugin.Response
-	res.Capabilities = volumeplugin.Capability{Scope: d.d.Scope()}
-	return res
+func (driver quobyteDriver) Capabilities(request volume.Request) volume.Response {
+	return volume.Response{Capabilities: volume.Capability{Scope: "global"}}
 }
