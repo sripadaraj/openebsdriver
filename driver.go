@@ -11,7 +11,11 @@ import (
 	//"time"
 
 	"github.com/docker/go-plugins-helpers/volume"
+<<<<<<< HEAD
 	// maya_api"github.com/openebs/maya"
+=======
+	maya_api "github.com/openebs/maya"
+>>>>>>> 16e65e1841c92b7a4881963c4d8b17902cc84905
 )
 
 type openEBSDriver struct {
