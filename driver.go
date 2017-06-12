@@ -151,6 +151,6 @@ func (driver openEBSDriver) Unmount(request volume.UnmountRequest) volume.Respon
 }
 
 // Capabilities indicates if a volume has to be created multiple times or only once.
-func (driver quobyteDriver) Capabilities(request volume.Request) volume.Response {
+func (driver openEBSDriver) Capabilities(request volume.Request) volume.Response {
 	return volume.Response{Capabilities: volume.Capability{Scope: "global"}}
 }
