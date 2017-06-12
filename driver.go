@@ -8,10 +8,10 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
-	"time"
+	//"time"
 
 	"github.com/docker/go-plugins-helpers/volume"
-	//maya_api "github.com/openebs/maya"
+	maya_api"github.com/openebs/maya"
 )
 
 type openEBSDriver struct {
