@@ -16,7 +16,7 @@ import (
 
 type openEBSDriver struct {
 	client       *maya_api.OpenEBSClient
-	quobyteMount string
+	openEBSMount string
 	m            *sync.Mutex
 	maxFSChecks  int
 	maxWaitTime  float64
