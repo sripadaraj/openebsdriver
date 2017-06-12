@@ -15,14 +15,14 @@ import (
 )
 
 type openEBSDriver struct {
-	client       *quobyte_api.QuobyteClient
+	client       *maya_api.OpenEBSClient
 	quobyteMount string
 	m            *sync.Mutex
 	maxFSChecks  int
 	maxWaitTime  float64
 }
 
-// NewHandlerFromVolumeDriver creates a plugin handler from an existing volume
+// newOpenEBSDriver creates a plugin handler from an existing volume
 // driver. This could be used, for instance, by the `local` volume driver built-in
 // to Docker Engine and it would create a plugin from it that maps plugin API calls
 // directly to any volume driver that satisfies the volume.Driver interface from
@@ -41,7 +41,6 @@ func newOpenEBSDriver(apiURL string, username string, password string, openEBSMo
 
 // Create request results in API call to Openebs registry
 // that creates requested volume if possible.
-
 func (driver openEBSDriver) Create(request volume.Request) volume.Response {
 	log.Printf("Creating volume %s\n", request.Name)
 	driver.m.Lock()
