@@ -11,11 +11,11 @@ import (
 	//"time"
 
 	"github.com/docker/go-plugins-helpers/volume"
-	maya_api"github.com/openebs/maya"
+	// maya_api"github.com/openebs/maya"
 )
 
 type openEBSDriver struct {
-	client       *maya_api.OpenEBSClient
+	client       string
 	openEBSMount string
 	m            *sync.Mutex
 	maxFSChecks  int
@@ -27,9 +27,9 @@ type openEBSDriver struct {
 // to Docker Engine and it would create a plugin from it that maps plugin API calls
 // directly to any volume driver that satisfies the volume.Driver interface from
 // Docker Engine.
-func newOpenEBSDriver(apiURL string, username string, password string, openEBSMount string, maxFSChecks int, maxWaitTime float64) openEBSDriver {
+func newOpenEBSDriver(client string, openEBSMount string, maxFSChecks int, maxWaitTime float64) openEBSDriver {
 	driver := openEBSDriver{
-		client:       maya_api.NewOpenEBSClient(apiURL, username, password),
+		client:       client,
 		openEBSMount: openEBSMount,
 		m:            &sync.Mutex{},
 		maxFSChecks:  maxFSChecks,
@@ -55,8 +55,7 @@ func (driver openEBSDriver) Create(request volume.Request) volume.Response {
 	if grp, ok := request.Options["group"]; ok {
 		group = grp
 	}
-
-	if _, err := driver.client.CreateVolume(&maya_api.CreateVolumeRequest{
+	if _, err := driver.client.CreateVolume(&client.CreateVolumeRequest{
 		Name:        request.Name,
 		RootUserID:  user,
 		RootGroupID: group,
@@ -66,9 +65,7 @@ func (driver openEBSDriver) Create(request volume.Request) volume.Response {
 		if !strings.Contains(err.Error(), "ENTITY_EXISTS_ALREADY/POSIX_ERROR_NONE") {
 			return volume.Response{Err: err.Error()}
 		}
-	}
-
-	mPoint := filepath.Join(driver.openEBSMount, request.Name)
+}
 	log.Printf("Validate mounting volume %s on %s\n", request.Name, mPoint)
 	if err := driver.checkMountPoint(mPoint); err != nil {
 		return volume.Response{Err: err.Error()}

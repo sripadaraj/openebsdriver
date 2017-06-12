@@ -35,9 +35,9 @@ func main() {
 		return
 	}
 
-	if err := validateAPIURL(*openEBSAPIURL); err != nil {
+/*	if err := validateAPIURL(*openEBSAPIURL); err != nil {
 		log.Fatalln(err)
-	}
+	}*/
 
 	if err := os.MkdirAll(*openEBSMountPath, 0555); err != nil {
 		log.Println(err.Error())
@@ -48,8 +48,8 @@ func main() {
 		mountAll(*openEBSMountOptions, *openEBSRegistry, *openEBSMountPath)
 	}
 
-	nDriver := newOpenEBSDriver(*openEBSAPIURL, *openEBSUser, *openEBSPassword, *openEBSMountPath, *maxFSChecks, *maxWaitTime)
+	nDriver := newOpenEBSDriver(*openEBSAPIURL,*openEBSMountPath, *maxFSChecks, *maxWaitTime)
 	handler := volume.NewHandler(nDriver)
 
-	log.Println(handler.ServeUnix(*group, openEBSID))
+//	log.Println(handler.ServeUnix(*group, openEBSID))
 }
