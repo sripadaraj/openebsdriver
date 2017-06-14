@@ -16,6 +16,7 @@ There are three types of files which can be put in the plugin directory.
      For example, you can create the Openebsdriver socket under ```/run/docker/plugins/openebs/openebsdriver.sock``` and 
     only mount ```/run/docker/plugins/openebs``` inside the openebsdriver container.
     
+
 ### JSON specification
 
 This is the JSON format for a plugin:
@@ -33,6 +34,7 @@ Plugins may also be socket activated by systemd. The official Plugins helpers na
 The service file (for example /lib/systemd/system/openebsdriver.service)
 
 - ![openebsdriver.service](https://github.com/maheshreddy7797/openebsdriver/blob/master/setup/openebsdriver.service)
+
 
 The socket file (for example /lib/systemd/system/openebsdriver.socket):
 
